@@ -3,7 +3,7 @@ import Cell from './Cell';
 import { useState} from 'react';
 
 const CELL_SIZE = 5;
-const WIDTH = 800;
+const WIDTH = 2000;
 const HEIGHT = 800;
 const NUM_ROWS = HEIGHT / CELL_SIZE;
 const NUM_COLS = WIDTH / CELL_SIZE;
@@ -40,6 +40,48 @@ const Board = () => {
         }
         return cells;
     }
+
+    // calculate the number of neighbours surrounding cell
+    const calculateNeighbours = (x, y) => {
+        let numNeighbours = 0;
+
+        const directions = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+        for (let i=0; i<directions.length; i++) {
+            let xNew = x + directions[i][0];
+            let yNew = y + directions[i][1];
+
+            if (xNew >= 0 && xNew < NUM_COLS && yNew >= 0 && yNew < NUM_ROWS && board[xNew][yNew]) {
+                numNeighbours++;
+            }
+        }
+        return numNeighbours;
+    }
+
+    // get the values for next board for all cells
+    const getNextBoard = () => {
+        let newBoard = emptyBoard();
+
+        for (let x=0; x< NUM_COLS; x++) {
+            for (let y=0; y<NUM_ROWS; y++) {
+                let numNeighbours = calculateNeighbours(x, y);
+
+                if (board[x][y]) {
+                    if (numNeighbours === 2 || numNeighbours === 3) {
+                        newBoard[x][y] = true;
+                    }
+                    else {
+                        newBoard[x][y] = false;
+                    }
+                }
+                else {
+                    if (numNeighbours === 3) {
+                        newBoard[x][y] = true;
+                    }
+                }
+            }
+        }
+    }
+
 
     // calculates the x and y of the cell clicked and toggles the cell
     const click = (event) => {
